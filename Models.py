@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-class MLPDrop(nn.Module):
+class MLPDropBinary(nn.Module):
     def __init__(self, drop_rate: float=0.5):
         super().__init__()
 
@@ -40,7 +40,7 @@ class MLPDrop(nn.Module):
     
     def forwardLogistic(self, x: torch.Tensor):
         """
-        Process the otput using the sigmoid activation
+        Process the output using the sigmoid activation
         """
         out = self.forward(x)
         out = torch.sigmoid(out)
@@ -67,4 +67,5 @@ class MLPDrop(nn.Module):
         sd = torch.std(samples, 1)
 
         return samples, mu, sd
+    
     
