@@ -1,35 +1,46 @@
+from typing import List
 import torch
 from torch import nn
 
 class MLPDropBinary(nn.Module):
-    def __init__(self, drop_rate: float=0.5):
+    def __init__(self,
+                 layer_sizes : List[int],
+                 drop_rate: float=0.5,
+        ):
+        """
+        Multi-Layer Perceptron (MLP) with dropout.
+
+        Parameters:
+        - layer_sizes (List[int]): List of layer sizes, including input size. As it is for binary classification the final layer is always one neuron.
+        - drop_rate (float, optional): Dropout rate for intermediate layers. Default is 0.5.
+        """
+
         super().__init__()
 
         # Define the intermediate layers
-        self.intermediate = nn.Sequential(
-            nn.Linear(2, 100),
-            nn.ELU(),
-            nn.Dropout(drop_rate),
-            nn.Linear(100, 10),
-            nn.ELU(),
-            nn.Dropout(drop_rate),
-            nn.Linear(10, 10),
-            nn.ELU(),
-            nn.Dropout(drop_rate),
-            nn.Linear(10, 10),
-            nn.ELU(),
-            nn.Dropout(drop_rate),
-            nn.Linear(10, 10),
-            nn.ELU(),
-            nn.Dropout(drop_rate)
-        )
+        intermediate_layers = []
+        for i in range(len(layer_sizes) - 1):
+            intermediate_layers.append(nn.Linear(layer_sizes[i], layer_sizes[i+1]))
+            intermediate_layers.append(nn.ELU())
+            intermediate_layers.append(nn.Dropout(drop_rate))
+
+        self.intermediate = nn.Sequential(*intermediate_layers)
 
         # Final layer
         self.output = nn.Sequential(
-            nn.Linear(10, 1)
+            nn.Linear(layer_sizes[-1], 1)
         )
 
     def forward(self, x: torch.Tensor):
+        """
+        Forward pass through the network.
+
+        Parameters:
+        - x (torch.Tensor): Input tensor.
+
+        Returns:
+        - torch.Tensor: Output tensor.
+        """
         # Output of intermediate layers
         x = self.intermediate(x)
 
@@ -41,6 +52,12 @@ class MLPDropBinary(nn.Module):
     def forwardLogistic(self, x: torch.Tensor):
         """
         Process the output using the sigmoid activation
+
+        Parameters:
+        - x (torch.Tensor): Input tensor.
+
+        Returns:
+        - torch.Tensor: Output tensor after sigmoid activation.
         """
         out = self.forward(x)
         out = torch.sigmoid(out)
@@ -49,7 +66,17 @@ class MLPDropBinary(nn.Module):
     
     def sample(self, x: torch.Tensor, N: int=100):
         """
-        Generate N samples from the output of the layer using dropout
+        Perform Monte Carlo sampling from the neural network with dropout for a probabilistic approach.
+
+        Parameters:
+        - x (torch.Tensor): Input tensor.
+        - N (int, optional): Number of samples to generate. Default is 100.
+
+        Returns:
+        - Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+            - torch.Tensor: Generated samples.
+            - torch.Tensor: Mean of the samples.
+            - torch.Tensor: Standard deviation of the samples.
         """
         # Set the dropout on
         self.train()
