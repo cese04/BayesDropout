@@ -7,18 +7,19 @@ from sklearn.datasets import make_moons, make_circles
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Enables to import the files from the outer folder
-import os
-import sys
-sys.path.insert(0, os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '..')))
+# Example parameters
+DATASET_SIZE = 1000
+
+LEARNING_RATE = 1e-2
+EPOCHS = 200
+
 
 
 # Import the utility to create the XOR dataset
 from util import make_XOR
 
 # Import the model for binary classification
-from Models import MLPDropBinary
+from Models.classification import MLPDropBinary
 
 # Define the color palette
 cm = "coolwarm"
@@ -73,3 +74,14 @@ modelDrop.train()
 data1 = torch.tensor([-2, 6]).float().unsqueeze(0)
 data2 = torch.tensor([2, -4]).float().unsqueeze(0)
 data3 = torch.tensor([-2, -3]).float().unsqueeze(0)
+
+data_examples = torch.stack([data1, data2, data3])
+
+samples, mus, sds = modelDrop.sample(data_examples)
+
+print(samples.shape)
+
+plt.figure()
+plt.hist(x=samples)
+plt.show()
+
