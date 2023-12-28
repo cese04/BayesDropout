@@ -176,10 +176,31 @@ print(pts_tensor)
 input_samples, input_mus, input_sds = modelDrop.sample(pts_tensor)
 
 plt.figure()
+
+
+plt.subplot(121)
+plt.contourf(xx, yy, Zs_mean.data.reshape(xx.shape), alpha=0.6, cmap=cm)
+plt.scatter(X[:, 0], X[:, 1], c=Y, alpha=0.6, cmap=cm)
+plt.colorbar()
+
+bbox=dict(boxstyle="square",
+                   ec=(1., 0.5, 0.5),
+                   fc=(1., 0.8, 0.8),
+                   )
+
+plt.text(pts[0][0], pts[0][1], s="A", bbox=bbox)
+plt.text(pts[1][0], pts[1][1], s="B", bbox=bbox)
+plt.text(pts[2][0], pts[2][1], s="C", bbox=bbox)
+
+locChr = ord("A")
+
 for i in range(len(input_samples)):
+    plt.subplot(len(input_samples),2, (i+1)*2)
+    plt.title("Distribution at " + chr(locChr + i))
     plt.hist(x=input_samples[i], bins=20, range=(0,1), alpha=0.6)
     plt.axvline(input_mus[i].numpy())
 plt.show()
+
 
 
 
