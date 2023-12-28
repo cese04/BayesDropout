@@ -15,9 +15,6 @@ LEARNING_RATE = 1e-2
 EPOCHS = 1000
 
 
-
-
-
 # Import the utility to create the XOR dataset
 from util import make_XOR
 
@@ -120,27 +117,15 @@ for e in range(EPOCHS):
 ##### Display a meshgrid with the predictions
     
 sample_size = 50
-# Zs = torch.zeros((Z_tens.shape[0], sample_size))
-# for i in range(sample_size):
-#     with torch.no_grad():
-#         out = torch.sigmoid(modelDrop(Z_tens))
-#         Zs[:, i] = torch.squeeze(out)
+
 
 Zs, Zs_mean, Zs_std = modelDrop.sample(Z_tens, N=sample_size)
 
 
-# with torch.no_grad():
-#     Zs_mean = torch.mean(Zs, 1)
-#     Zs_std = torch.std(Zs, 1)
-
-# modelDrop.train()
 data1 = torch.tensor([0, 3]).float().unsqueeze(0)
 data2 = torch.tensor([0, 0]).float().unsqueeze(0)
 data3 = torch.tensor([-4, 1]).float().unsqueeze(0)
 
-# data1 = torch.tensor([0, 0]).float()
-# data2 = torch.tensor([0, 1.5]).float()
-# data3 = torch.tensor([-2, -3]).float()
 
 samples1,_,_ = modelDrop.sample(data1)
 samples2,_,_ = modelDrop.sample(data2)
@@ -149,12 +134,6 @@ samples3,_,_ = modelDrop.sample(data3)
 samples1 = samples1[0].numpy()
 samples2 = samples2[0].numpy()
 samples3 = samples3[0].numpy()
-# M = 500
-# with torch.no_grad():
-#     for m in range(M):
-#         samples1.append(torch.sigmoid(modelDrop(data1)).item())
-#         samples2.append(torch.sigmoid(modelDrop(data2)).item())
-#         samples3.append(torch.sigmoid(modelDrop(data3)).item())
 
 modelDrop.eval()
 with torch.no_grad():
@@ -168,24 +147,41 @@ with torch.no_grad():
     Z_hat =  modelDrop(Z_tens)
 
 plt.figure(figsize=(9, 8))
-plt.subplot(221)
+plt.subplot(211)
 plt.contourf(xx, yy, expit(Z_hat.data.reshape(xx.shape)), alpha=0.9, cmap=cm, vmin=0, vmax=1)
 plt.contour(xx, yy, expit(Z_hat.data.reshape(xx.shape)), alpha=1, cmap=cm, vmin=0, vmax=1)
 plt.axis('scaled')
 plt.title("Prediction using all neurons")
 
-plt.subplot(222)
+plt.subplot(223)
 plt.contourf(xx, yy, Zs_mean.data.reshape(xx.shape), alpha=0.9, cmap=cm, vmin=0, vmax=1)
 plt.colorbar()
 plt.contour(xx, yy, Zs_mean.data.reshape(xx.shape), alpha=1, cmap=cm, vmin=0, vmax=1)
-
 plt.axis('scaled')
-plt.title("Average prediction using dropout (100 samples)")
+plt.title("Average prediction using dropout\n (100 samples)")
 
-plt.subplot(212)
+plt.subplot(224)
 plt.contourf(xx, yy, Zs_std.data.reshape(xx.shape), alpha=1)
 plt.colorbar()
 plt.axis('scaled')
-plt.title("Standard deviation on predictions using dropout (100 samples)")
+plt.title("Standard deviation on predictions using dropout\n (100 samples)")
 
+pts = np.asarray(plt.ginput(3, timeout=-1)) 
 plt.show()
+
+pts_tensor = torch.tensor(pts).float()
+
+print(pts_tensor)
+
+input_samples, input_mus, input_sds = modelDrop.sample(pts_tensor)
+
+plt.figure()
+for i in range(len(input_samples)):
+    plt.hist(x=input_samples[i], bins=20, range=(0,1), alpha=0.6)
+    plt.axvline(input_mus[i].numpy())
+plt.show()
+
+
+
+
+print(pts)
