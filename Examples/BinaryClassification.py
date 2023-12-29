@@ -8,11 +8,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Example parameters
-DATASET = 'moons'
+DATASET = 'XOR'
 DATASET_SIZE = 1000
 
 LEARNING_RATE = 1e-2
-EPOCHS = 2000
+EPOCHS = 500
 
 N_SAMPLES = 4
 
@@ -33,7 +33,7 @@ Y = np.array([])
 if DATASET == "XOR":
     X, Y = make_XOR(DATASET_SIZE, noise=0.7)
 elif DATASET == "moons":
-    X, Y = make_moons(DATASET_SIZE, noise=0.2)
+    X, Y = make_moons(DATASET_SIZE, noise=0.1)
 
 
 # Declare the tensors for input and target
